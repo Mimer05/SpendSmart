@@ -225,6 +225,50 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_GoToRegisterActionPerformed
 
     private void LoginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginButtonActionPerformed
+
+    String username = UsernameField.getText();
+    String password = new String(PasswordField.getPassword()); 
+    
+    // the backend validator
+    Backend.InputValidator validator = new Backend.InputValidator();
+    
+    // validate Username 
+    int usernameStatus = validator.validateUsername(username);
+    if (usernameStatus != 0) {
+        switch (usernameStatus) {
+            case 1:
+                javax.swing.JOptionPane.showMessageDialog(this, "Username field cannot be empty.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                break;
+            case 2:
+                javax.swing.JOptionPane.showMessageDialog(this, "Username must be between 5 and 15 characters.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                break;
+            case 3:
+                javax.swing.JOptionPane.showMessageDialog(this, "Invalid characters detected.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                break;
+        }
+        return;
+    }
+    
+    // validate Password 
+    int passwordStatus = validator.validatePassword(password, password);
+    if (passwordStatus != 0) {
+        switch (passwordStatus) {
+            case 1:
+                javax.swing.JOptionPane.showMessageDialog(this, "Password field cannot be empty.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                break;
+            case 3:
+                javax.swing.JOptionPane.showMessageDialog(this, "Password must be between 8 and 19 characters.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                break;
+            case 4:
+                javax.swing.JOptionPane.showMessageDialog(this, "Invalid characters detected.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                break;
+        }
+        return; 
+    }
+  
+    // to hash
+    javax.swing.JOptionPane.showMessageDialog(this, "Login successfully...", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+  
     }//GEN-LAST:event_LoginButtonActionPerformed
 
     public static void main(String args[]) {

@@ -15,7 +15,7 @@ public class InputValidator {
 
     private boolean isFieldEmpty(String... fields) {
         for (String field : fields) {
-            if (field.isBlank()) return true;
+           if (field == null || field.trim().isEmpty()) return true;
         }
         return false;
     }
