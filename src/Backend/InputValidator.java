@@ -50,7 +50,7 @@ public class InputValidator {
         if (isFieldEmpty(username))           return 1;
         if (isUsernameLengthInvalid(username)) return 2;
         if (hasSqlInjectionRisk(username))     return 3; 
-        if (isUsernameFormatInvalid(username)) return 3; 
+        if (isUsernameFormatInvalid(username)) return 4; 
         return 0;
     }
 
