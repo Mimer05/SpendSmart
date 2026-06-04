@@ -88,7 +88,7 @@ public class ExpenseValidator {
                     + " characters, or contain restricted characters (' -- ; `).";
         }
 
-        if (!isExpenseDateValid(expense.getExpenseDate())) return "Error: Invalid expense date format. Use 'yyy-MM-dd' (e.g., 2024-12-31).";
+        if (!isExpenseDateValid(expense.getExpenseDate())) return "Error: Invalid expense date format. Use 'yyyy-MM-dd' (e.g., 2024-12-31).";
         if (!isCreatedAtValid(expense.getCreatedAt())) return "Error: System timestamp error.";
 
         return "Valid";
