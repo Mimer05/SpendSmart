@@ -29,7 +29,7 @@ public class DatabaseConfig {
                 + "user_id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "username TEXT NOT NULL UNIQUE,"
                 + "password_hash TEXT NOT NULL,"
-                + "password_salt BLOB NOT NULL"
+                + "password_salt TEXT NOT NULL"
                 + ");";
 
         String createTransactionsTable = "CREATE TABLE IF NOT EXISTS transactions ("
