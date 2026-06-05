@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseConfig {
-    private static final String URL = "jdbc:sqlite:try.db";
+    private static final String URL = "jdbc:sqlite:spendsmart.db";
     public static Connection connection = null;
 
     public static void initialize() {
