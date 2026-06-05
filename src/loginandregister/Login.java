@@ -2,6 +2,7 @@ package loginandregister;
 
 import java.awt.Dimension;
 import javax.swing.JLabel;
+import UserExpense.UserExpense;
 
 public class Login extends javax.swing.JFrame {
 
@@ -16,11 +17,14 @@ public class Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         RightPanel = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         AppDescription = new javax.swing.JTextArea();
+        jLabel7 = new javax.swing.JLabel();
         LeftPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -30,6 +34,19 @@ public class Login extends javax.swing.JFrame {
         LoginButton = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         GoToRegister = new javax.swing.JButton();
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("LOGIN");
@@ -76,14 +93,21 @@ public class Login extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, RightPanelLayout.createSequentialGroup()
                 .addGap(0, 89, Short.MAX_VALUE)
-                .addComponent(AppDescription, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(77, 77, 77))
+                .addGroup(RightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, RightPanelLayout.createSequentialGroup()
+                        .addComponent(AppDescription, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(77, 77, 77))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, RightPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addGap(133, 133, 133))))
         );
         RightPanelLayout.setVerticalGroup(
             RightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(RightPanelLayout.createSequentialGroup()
                 .addGap(100, 100, 100)
                 .addComponent(jLabel6)
+                .addGap(13, 13, 13)
+                .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel5)
                 .addGap(18, 18, 18)
@@ -92,7 +116,7 @@ public class Login extends javax.swing.JFrame {
         );
 
         jPanel1.add(RightPanel);
-        RightPanel.setBounds(0, 0, 400, 500);
+        RightPanel.setBounds(0, 0, 400, 501);
 
         LeftPanel.setBackground(new java.awt.Color(30, 41, 59));
         LeftPanel.setFont(new java.awt.Font("Yu Gothic UI Semilight", 1, 24)); // NOI18N
@@ -193,21 +217,21 @@ public class Login extends javax.swing.JFrame {
                 .addGroup(LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(GoToRegister))
-                .addContainerGap(90, Short.MAX_VALUE))
+                .addContainerGap(91, Short.MAX_VALUE))
         );
 
         jPanel1.add(LeftPanel);
-        LeftPanel.setBounds(400, 0, 400, 500);
+        LeftPanel.setBounds(400, 0, 400, 501);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -266,9 +290,14 @@ public class Login extends javax.swing.JFrame {
         return; 
     }
   
-    // to hash
-    javax.swing.JOptionPane.showMessageDialog(this, "Login successfully...", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-  
+        // to hash
+        javax.swing.JOptionPane.showMessageDialog(this, "Login successfully...", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        UserExpense mainDashboard = new UserExpense();
+        mainDashboard.pack();                         
+        mainDashboard.setLocationRelativeTo(null);     
+        mainDashboard.setVisible(true);                
+
+        this.dispose();
     }//GEN-LAST:event_LoginButtonActionPerformed
 
     public static void main(String args[]) {
@@ -295,6 +324,9 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
 }

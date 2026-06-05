@@ -246,6 +246,8 @@ public class Register extends javax.swing.JFrame {
 
     private void RegisterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RegisterButtonActionPerformed
      
+        
+        
     String username = RegUsernameField.getText();
     String password = new String(RegPassField.getPassword());
     String confirmPassword = new String(RegConfirmPassField.getPassword()); 
@@ -295,8 +297,12 @@ public class Register extends javax.swing.JFrame {
     String secureHashedPassword = Backend.PasswordSecurity.hashPassword(password, salt);
     
 
-    javax.swing.JOptionPane.showMessageDialog(this, "Register successfully", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-  
+        javax.swing.JOptionPane.showMessageDialog(this, "Register successfully", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        Login loginFrame = new Login();
+        loginFrame.setVisible(true);
+        loginFrame.pack();
+        loginFrame.setLocationRelativeTo(null);
+        this.dispose();
     }//GEN-LAST:event_RegisterButtonActionPerformed
 
    
