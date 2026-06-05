@@ -10,11 +10,14 @@ public class DatabaseConfig {
     public static Connection connection = null;
 
     public static void initialize() {
+        if (connection != null) {
+            return;
+        }
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection(URL);
             System.out.println("SQLite database initialized successfully.");
-            
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> closeConnection()));
             createTables();
 
         } catch (SQLException e) {
@@ -24,12 +27,37 @@ public class DatabaseConfig {
         }
     }
 
-    private static void createTables() {       
+    public static void closeConnection() {
+        if (connection != null) {
+            try {
+                if (!connection.isClosed()) {
+                    connection.close();
+                    System.out.println("Database connection closed.");
+                }
+            } catch (SQLException e) {
+                System.out.println("Failed to close database connection: " + e.getMessage());
+            } finally {
+                connection = null;
+            }
+        }
+    }
+
+    private static void createTables() {
+         if (connection == null) {
+            System.out.println("Table creation skipped: no database connection.");
+            return;
+        }
+        
         String createUsersTable = "CREATE TABLE IF NOT EXISTS users ("
                 + "user_id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "username TEXT NOT NULL UNIQUE,"
                 + "password_hash TEXT NOT NULL,"
                 + "password_salt TEXT NOT NULL"
+                + ");";
+        
+        String createCategoriesTable = "CREATE TABLE IF NOT EXISTS categories ("
+                + "category_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "category_name TEXT NOT NULL UNIQUE"
                 + ");";
 
         String createTransactionsTable = "CREATE TABLE IF NOT EXISTS transactions ("
