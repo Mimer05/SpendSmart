@@ -13,6 +13,13 @@ public class InputValidator {
         return 0;
     }
 
+    public int validatePassword(String pass) {
+        if (isFieldEmpty(pass))   return 1;
+        if (isPasswordLengthInvalid(pass))  return 3;
+        if (hasSqlInjectionRisk(pass))      return 4;
+        return 0;
+    }
+    
     private boolean isFieldEmpty(String... fields) {
         for (String field : fields) {
            if (field == null || field.trim().isEmpty()) return true;
