@@ -28,11 +28,6 @@ public class Expense {
         this.createdAt = createdAt;
     }
 
-    public Expense(int expenseId, int userId, int categoryId, double amount,
-                   String description, String expenseDate) {
-        this(expenseId, userId, categoryId, amount, description, expenseDate,
-                LocalDateTime.now().format(FORMAT_TIME));
-    }
 
     public Expense(int userId, int categoryId, double amount,
                    String description, String expenseDate) {
