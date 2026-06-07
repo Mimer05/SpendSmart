@@ -129,23 +129,22 @@ public class ExpenseManager {
                 + "ORDER BY t.expense_date DESC";
 
         try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                Expense e = new Expense(
-                        rs.getInt("expense_id"),
-                        rs.getInt("user_id"),
-                        rs.getInt("category_id"),
-                        rs.getDouble("amount"),
-                        rs.getString("description"),
-                        rs.getString("expense_date"),
-                        rs.getString("created_at")
-                );
-                e.setCategoryName(rs.getString("category_name"));
-                expenses.add(e);
+            pstmt.setInt(1, userId);           
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Expense e = new Expense(
+                            rs.getInt("expense_id"),
+                            rs.getInt("user_id"),
+                            rs.getInt("category_id"),
+                            rs.getDouble("amount"),
+                            rs.getString("description"),
+                            rs.getString("expense_date"),
+                            rs.getString("created_at")
+                    );
+                    e.setCategoryName(rs.getString("category_name"));
+                    expenses.add(e);
+                }
             }
-
         } catch (SQLException e) {
             System.out.println("Failed to fetch expenses: " + e.getMessage());
         }
@@ -165,15 +164,15 @@ public class ExpenseManager {
                 + "ORDER BY total DESC";
 
         try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                    Category cat = new Category(
-                    rs.getString("category_name"),  
-                    rs.getDouble("total")          
-                );
-                summary.add(cat);
+            pstmt.setInt(1, userId);            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                        Category cat = new Category(
+                        rs.getString("category_name"),  
+                        rs.getDouble("total")          
+                    );
+                    summary.add(cat);
+                }
             }
         } catch (SQLException e) {
             System.out.println("Failed to fetch summary: " + e.getMessage());
@@ -187,9 +186,10 @@ public class ExpenseManager {
         String sql = "SELECT SUM(amount) AS grand_total FROM transactions WHERE user_id = ?";
         try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
             pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return rs.getDouble("grand_total");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("grand_total");
+                }
             }
         } catch (SQLException e) {
             System.out.println("Failed to get total expenses: " + e.getMessage());

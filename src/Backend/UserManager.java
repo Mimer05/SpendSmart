@@ -54,13 +54,13 @@ public class UserManager {
         int userCheck = validator.validateUsername(username);
         if (userCheck != 0) {
             System.out.println("There's an error in username: Code " + userCheck);
-            return userCheck;
+            return -userCheck;
         }
 
         int passCheck = validator.validatePassword(password);
         if (passCheck != 0) {
             System.out.println("There's an error in password: Code " + passCheck);
-            return passCheck;
+            return -passCheck;
         }
 
         
@@ -73,7 +73,7 @@ public class UserManager {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (!rs.next()) {
                     System.out.println("Login failed: user not found.");
-                    return -1;
+                    return -6;
                 }
 
                 int    userId        = rs.getInt("user_id");
@@ -89,14 +89,27 @@ public class UserManager {
                     return userId;  
                 } else {
                     System.out.println("Login failed: incorrect password.");
-                    return -2;
+                    return -5;
                 }
             }
         } catch (SQLException e) {
             System.out.println("Login error: " + e.getMessage());
-            return -3;
+            return -7;
         }
     }
 
- 
+    public String getUsernameById(int userId) {
+        String sql = "SELECT username FROM users WHERE user_id";
+        try (PreparedStatement pstmt = DatabaseConfig.connection.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("username");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to fetch username: " + e.getMessage());
+        }
+        return null;
+    }
 }
