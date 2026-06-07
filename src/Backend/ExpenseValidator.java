@@ -43,7 +43,7 @@ public class ExpenseValidator {
     }
 
     public static boolean isDescriptionValid(String description) {
-        if (description == null || description.isBlank() || description.length() > MAX_DESCRIPTION_LENGTH) {
+        if (description == null || description.trim().isEmpty() || description.length() > MAX_DESCRIPTION_LENGTH) {
             return false;
         }
 
@@ -54,7 +54,7 @@ public class ExpenseValidator {
     }
 
     public static boolean isExpenseDateValid(String date) {
-        if (date == null || date.isBlank() || !date.matches(DATE_FORMAT_PATTERN)) {
+        if (date == null || date.trim().isEmpty() || !date.matches(DATE_FORMAT_PATTERN)) {
             return false;
         }
 
@@ -70,7 +70,7 @@ public class ExpenseValidator {
 
     public static boolean isCreatedAtValid(String dateTime) {
         return dateTime != null
-                && !dateTime.isBlank()
+                && !dateTime.trim().isEmpty()
                 && dateTime.length() <= MAX_DATETIME_LENGTH;
     }
 

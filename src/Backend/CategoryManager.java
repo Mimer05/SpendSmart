@@ -15,7 +15,7 @@ public class CategoryManager {
 
     
     public boolean addCategory(String categoryName) {
-        if (categoryName == null || categoryName.isBlank()) {
+        if (categoryName == null || categoryName.trim().isEmpty()) {
             System.out.println("Category name cannot be empty.");
             return false;
         }

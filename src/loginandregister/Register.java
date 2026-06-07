@@ -245,64 +245,46 @@ public class Register extends javax.swing.JFrame {
     }//GEN-LAST:event_GoToLoginActionPerformed
 
     private void RegisterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RegisterButtonActionPerformed
-     
-        
-        
-    String username = RegUsernameField.getText();
-    String password = new String(RegPassField.getPassword());
-    String confirmPassword = new String(RegConfirmPassField.getPassword()); 
-    
-    //inputValidator
-    Backend.InputValidator validator = new Backend.InputValidator();
-    
-    //validate Username
-    int usernameStatus = validator.validateUsername(username);
-    if (usernameStatus != 0) {
-        switch (usernameStatus) {
-            case 1:
-                javax.swing.JOptionPane.showMessageDialog(this, "Username cannot be empty.", "Registration Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-            case 2:
-                javax.swing.JOptionPane.showMessageDialog(this, "Username must be between 5 and 15 characters.", "Registration Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-            case 3:
-                javax.swing.JOptionPane.showMessageDialog(this, "Invalid characters.", "Registration Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-        }
-        return; 
-    }
-    
-    // Password and Confirm Password
-    int passwordStatus = validator.validatePassword(password, confirmPassword);
-    if (passwordStatus != 0) {
-        switch (passwordStatus) {
-            case 1:
-                javax.swing.JOptionPane.showMessageDialog(this, "Password fields cannot be empty.", "Registration Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-            case 2:
-                javax.swing.JOptionPane.showMessageDialog(this, "Passwords do not match.", "Registration Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-            case 3:
-                javax.swing.JOptionPane.showMessageDialog(this, "Password must be between 8 and 19 characters.", "Registration Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-            case 4:
-                javax.swing.JOptionPane.showMessageDialog(this, "Invalid characters.", "Registration Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-        }
-        return; 
-    }
-    
-    //PasswordSecurity class
-    byte[] salt = Backend.PasswordSecurity.generateSalt();
-    String secureHashedPassword = Backend.PasswordSecurity.hashPassword(password, salt);
-    
+        String username = RegUsernameField.getText();
+        String password = new String(RegPassField.getPassword());
+        String confirmPassword = new String(RegConfirmPassField.getPassword());
 
-        javax.swing.JOptionPane.showMessageDialog(this, "Register successfully", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-        Login loginFrame = new Login();
-        loginFrame.setVisible(true);
-        loginFrame.pack();
-        loginFrame.setLocationRelativeTo(null);
-        this.dispose();
+        Backend.UserManager userManager = new Backend.UserManager();
+
+        int registrationStatus = userManager.registerUser(username, password, confirmPassword);
+
+        if (registrationStatus == 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Registered successfully!", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+            Login loginFrame = new Login();
+            loginFrame.pack();
+            loginFrame.setLocationRelativeTo(null);
+            loginFrame.setVisible(true);
+            this.dispose();
+        } else {
+            String errorMessage;
+            switch (registrationStatus) {
+                case 1:
+                    errorMessage = "Fields cannot be empty.";
+                    break;
+                case 2:
+                    errorMessage = "Username length or Match issue encountered.";
+                    break;
+                case 3:
+                    errorMessage = "Invalid characters / Character constraints violated.";
+                    break;
+                case 4:
+                    errorMessage = "Invalid input characters detected.";
+                    break;
+                case -1:
+                    errorMessage = "Username already exists or database transaction failed.";
+                    break;
+                default:
+                    errorMessage = "An unknown error processing your registration occurred.";
+                    break;
+            }
+            javax.swing.JOptionPane.showMessageDialog(this, errorMessage, "Registration Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_RegisterButtonActionPerformed
 
    

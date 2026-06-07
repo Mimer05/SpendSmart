@@ -249,55 +249,46 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_GoToRegisterActionPerformed
 
     private void LoginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginButtonActionPerformed
+        String username = UsernameField.getText();
+        String password = new String(PasswordField.getPassword());
 
-    String username = UsernameField.getText();
-    String password = new String(PasswordField.getPassword()); 
-    
-    // the backend validator
-    Backend.InputValidator validator = new Backend.InputValidator();
-    
-    // validate Username 
-    int usernameStatus = validator.validateUsername(username);
-    if (usernameStatus != 0) {
-        switch (usernameStatus) {
-            case 1:
-                javax.swing.JOptionPane.showMessageDialog(this, "Username field cannot be empty.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-            case 2:
-                javax.swing.JOptionPane.showMessageDialog(this, "Username must be between 5 and 15 characters.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-            case 3:
-                javax.swing.JOptionPane.showMessageDialog(this, "Invalid characters detected.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-        }
-        return;
-    }
-    
-    // validate Password 
-    int passwordStatus = validator.validatePassword(password, password);
-    if (passwordStatus != 0) {
-        switch (passwordStatus) {
-            case 1:
-                javax.swing.JOptionPane.showMessageDialog(this, "Password field cannot be empty.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-            case 3:
-                javax.swing.JOptionPane.showMessageDialog(this, "Password must be between 8 and 19 characters.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-            case 4:
-                javax.swing.JOptionPane.showMessageDialog(this, "Invalid characters detected.", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                break;
-        }
-        return; 
-    }
-  
-        // to hash
-        javax.swing.JOptionPane.showMessageDialog(this, "Login successfully...", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-        UserExpense mainDashboard = new UserExpense();
-        mainDashboard.pack();                         
-        mainDashboard.setLocationRelativeTo(null);     
-        mainDashboard.setVisible(true);                
+        Backend.UserManager userManager = new Backend.UserManager();
 
-        this.dispose();
+        int loginResult = userManager.loginUser(username, password);
+
+        if (loginResult >= 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Login successful!", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+            UserExpense dashboard = new UserExpense();
+
+            dashboard.pack();
+            dashboard.setLocationRelativeTo(null);
+            dashboard.setVisible(true);
+            this.dispose();
+        } else {
+            String errorMessage;
+            switch (loginResult) {
+                case 1:
+                    errorMessage = "Fields cannot be empty.";
+                    break;
+                case 2:
+                    errorMessage = "Username structure is invalid.";
+                    break;
+                case 3:
+                    errorMessage = "Invalid alphanumeric formatting entries.";
+                    break;
+                case -1:
+                    errorMessage = "Username not found in records.";
+                    break;
+                case -2:
+                    errorMessage = "Incorrect password credentials supplied.";
+                    break;
+                default:
+                    errorMessage = "Database processing validation failure encountered.";
+                    break;
+            }
+            javax.swing.JOptionPane.showMessageDialog(this, errorMessage, "Authentication Failure", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_LoginButtonActionPerformed
 
     public static void main(String args[]) {
