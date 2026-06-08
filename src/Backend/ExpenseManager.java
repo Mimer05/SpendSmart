@@ -12,36 +12,39 @@ public class ExpenseManager {
     private Connection getConn() {
         return DatabaseConfig.connection;
     }
-    
+
     public boolean addExpense(Expense expense) {
-        
-        if (expense.getCategoryId() <= 0 && expense.getCategoryName() != null) {
-            CategoryManager cm = new CategoryManager();
-            int resolvedId = cm.getCategoryIdByName(expense.getCategoryName());
+        CategoryManager cm = new CategoryManager();
+
+        if (expense.getCategoryName() != null && !expense.getCategoryName().trim().isEmpty()) {
+            String cleanName = expense.getCategoryName().trim();
+
+            int resolvedId = cm.getCategoryIdByName(cleanName);
+
             if (resolvedId == -1) {
-                System.out.println("Category not found: " + expense.getCategoryName());
-                return false;
+                cm.addCategory(cleanName);
+
+                resolvedId = cm.getCategoryIdByName(cleanName);
             }
             expense.setCategoryId(resolvedId);
         }
 
-      
+        if (expense.getCategoryId() <= 0) {
+
+            return false;
+        }
+
         if (!ExpenseValidator.isAmountValid(expense.getAmount())) {
-            System.out.println(ExpenseValidator.getErrorMessage(expense));
             return false;
         }
         if (!ExpenseValidator.isDescriptionValid(expense.getDescription())) {
-            System.out.println(ExpenseValidator.getErrorMessage(expense));
             return false;
         }
         if (!ExpenseValidator.isExpenseDateValid(expense.getExpenseDate())) {
-            System.out.println(ExpenseValidator.getErrorMessage(expense));
             return false;
         }
 
-        String sql = "INSERT INTO transactions (user_id, category_id, amount, description, expense_date, created_at) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
-
+        String sql = "INSERT INTO transactions (user_id, category_id, amount, description, expense_date, created_at) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
             pstmt.setInt(1, expense.getUserId());
             pstmt.setInt(2, expense.getCategoryId());
@@ -49,38 +52,77 @@ public class ExpenseManager {
             pstmt.setString(4, expense.getDescription());
             pstmt.setString(5, expense.getExpenseDate());
             pstmt.setString(6, expense.getCreatedAt());
+
             pstmt.executeUpdate();
-            System.out.println("Expense added successfully.");
             return true;
         } catch (SQLException e) {
-            System.out.println("Add expense failed: " + e.getMessage());
             return false;
         }
     }
 
-   
-    public boolean updateExpense(Expense expense) {
- 
-        if (expense.getCategoryId() <= 0 && expense.getCategoryName() != null) {
-            CategoryManager cm = new CategoryManager();
-            int resolvedId = cm.getCategoryIdByName(expense.getCategoryName());
+    public int addExpenseAndGetId(Expense expense) {
+        CategoryManager cm = new CategoryManager();
+
+        if (expense.getCategoryName() != null && !expense.getCategoryName().trim().isEmpty()) {
+            String cleanName = expense.getCategoryName().trim();
+            int resolvedId = cm.getCategoryIdByName(cleanName);
+
             if (resolvedId == -1) {
-                System.out.println("Category not found: " + expense.getCategoryName());
-                return false;
+                cm.addCategory(cleanName);
+                resolvedId = cm.getCategoryIdByName(cleanName);
             }
             expense.setCategoryId(resolvedId);
         }
 
+        if (expense.getCategoryId() <= 0) {
+            return -1;
+        }
+
         if (!ExpenseValidator.isAmountValid(expense.getAmount())) {
-            System.out.println(ExpenseValidator.getErrorMessage(expense));
+            return -1;
+        }
+        if (!ExpenseValidator.isDescriptionValid(expense.getDescription())) {
+            return -1;
+        }
+        if (!ExpenseValidator.isExpenseDateValid(expense.getExpenseDate())) {
+            return -1;
+        }
+
+        String sql = "INSERT INTO transactions (user_id, category_id, amount, description, expense_date, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement pstmt = getConn().prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setInt(1, expense.getUserId());
+            pstmt.setInt(2, expense.getCategoryId());
+            pstmt.setDouble(3, expense.getAmount());
+            pstmt.setString(4, expense.getDescription());
+            pstmt.setString(5, expense.getExpenseDate());
+            pstmt.setString(6, expense.getCreatedAt());
+
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int newId = generatedKeys.getInt(1);
+                        return newId;
+                    }
+                }
+            }
+            return -1;
+        } catch (SQLException e) {
+            return -1;
+        }
+
+    }
+
+    public boolean updateExpense(Expense expense) {
+        if (!ExpenseValidator.isAmountValid(expense.getAmount())) {
             return false;
         }
         if (!ExpenseValidator.isDescriptionValid(expense.getDescription())) {
-            System.out.println(ExpenseValidator.getErrorMessage(expense));
             return false;
         }
         if (!ExpenseValidator.isExpenseDateValid(expense.getExpenseDate())) {
-            System.out.println(ExpenseValidator.getErrorMessage(expense));
             return false;
         }
 
@@ -94,11 +136,13 @@ public class ExpenseManager {
             pstmt.setString(4, expense.getExpenseDate());
             pstmt.setInt(5, expense.getExpenseId());
             pstmt.setInt(6, expense.getUserId());
-            int rows = pstmt.executeUpdate();
-            System.out.println("Expense updated. Rows affected: " + rows);
-            return rows > 0;
+
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Database Update Execution Completed. Rows modified: " + rowsAffected);
+
+            return rowsAffected > 0;
         } catch (SQLException e) {
-            System.out.println("Update expense failed: " + e.getMessage());
+            System.out.println("SQL Exception during Update operation: " + e.getMessage());
             return false;
         }
     }
@@ -117,7 +161,6 @@ public class ExpenseManager {
         }
     }
 
-   
     public List<Expense> getExpensesByUser(int userId) {
         List<Expense> expenses = new ArrayList<>();
 
@@ -129,7 +172,7 @@ public class ExpenseManager {
                 + "ORDER BY t.expense_date DESC";
 
         try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
-            pstmt.setInt(1, userId);           
+            pstmt.setInt(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     Expense e = new Expense(
@@ -152,7 +195,6 @@ public class ExpenseManager {
         return expenses;
     }
 
-    
     public List<Category> getSummaryByCategory(int userId) {
         List<Category> summary = new ArrayList<>();
 
@@ -164,12 +206,12 @@ public class ExpenseManager {
                 + "ORDER BY total DESC";
 
         try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
-            pstmt.setInt(1, userId);            
+            pstmt.setInt(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                        Category cat = new Category(
-                        rs.getString("category_name"),  
-                        rs.getDouble("total")          
+                    Category cat = new Category(
+                            rs.getString("category_name"),
+                            rs.getDouble("total")
                     );
                     summary.add(cat);
                 }
@@ -181,7 +223,6 @@ public class ExpenseManager {
         return summary;
     }
 
-    
     public double getTotalExpenses(int userId) {
         String sql = "SELECT SUM(amount) AS grand_total FROM transactions WHERE user_id = ?";
         try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
@@ -196,4 +237,5 @@ public class ExpenseManager {
         }
         return 0.0;
     }
+
 }

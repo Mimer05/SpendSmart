@@ -1,12 +1,13 @@
-
 package UserExpense;
 
 public class AddExpenseDialog extends javax.swing.JDialog {
- public String category = "";
- public String description = "";
- public double amount = 0.0;
- public boolean isSaved = false;
-  
+
+    public String category = "";
+    public String description = "";
+    public double amount = 0.0;
+    public boolean isSaved = false;
+    private int currentUserId;
+
     public AddExpenseDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -167,20 +168,33 @@ public class AddExpenseDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_descriptionFieldActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-       this.isSaved = false;
-       this.dispose(); 
+        this.isSaved = false;
+        this.dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-       try {
-    this.category = categoryField.getText();
-    this.description = descriptionField.getText();
-    this.amount = Double.parseDouble(amountField.getText());
-    this.isSaved = true;
-    this.dispose(); 
-} catch (NumberFormatException e) {
-    javax.swing.JOptionPane.showMessageDialog(this, "Please enter a valid number for amount.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-}
+        try {
+            String catName = categoryField.getText().trim();
+            String desc = descriptionField.getText().trim();
+            String amountText = amountField.getText().trim();
+
+            if (catName.isEmpty() || desc.isEmpty() || amountText.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "All fields are required.", "Validation Error", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            double parsedAmount = Double.parseDouble(amountText);
+
+            this.category = catName;
+            this.description = desc;
+            this.amount = parsedAmount;
+            this.isSaved = true;
+
+            this.dispose();
+
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Please enter a valid numeric value for the amount.", "Input Type Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_saveButtonActionPerformed
 
     /**

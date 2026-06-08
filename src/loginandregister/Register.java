@@ -287,7 +287,6 @@ public class Register extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_RegisterButtonActionPerformed
 
-   
     private void LoginButtonActionPerformed(java.awt.event.ActionEvent evt) {
     }
 

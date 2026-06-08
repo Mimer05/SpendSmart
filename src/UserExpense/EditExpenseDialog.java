@@ -1,19 +1,36 @@
-
 package UserExpense;
 
 public class EditExpenseDialog extends javax.swing.JDialog {
+
+    private int currentExpenseId = 0;
+    private int currentUserId;
+    private boolean isEditMode = false;
 
     public EditExpenseDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
     }
-    
+
     public String category = "";
     public String description = "";
     public double amount = 0.0;
     public boolean isSaved = false;
 
-    public void setExpenseData(String category, String description, double amount) {
+    public void setEditData(Backend.Expense expense) {
+        this.currentExpenseId = expense.getExpenseId();
+        this.currentUserId = expense.getUserId();
+        this.isEditMode = true;
+
+        categoryField.setText(expense.getCategoryName());
+        descriptionField.setText(expense.getDescription());
+        amountField.setText(String.valueOf(expense.getAmount()));
+    }
+
+    public void setExpenseData(int expenseId, int userId, String category, String description, double amount) {
+        this.currentExpenseId = expenseId;
+        this.currentUserId = userId;
+        this.isEditMode = true;
+
         categoryField.setText(category);
         descriptionField.setText(description);
         amountField.setText(String.valueOf(amount));
@@ -185,11 +202,65 @@ public class EditExpenseDialog extends javax.swing.JDialog {
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         try {
-            this.category = categoryField.getText();
-            this.description = descriptionField.getText();
-            this.amount = Double.parseDouble(amountField.getText());
-            this.isSaved = true;
-            this.dispose();
+            String catName = categoryField.getText().trim();
+            String desc = descriptionField.getText().trim();
+            String amountText = amountField.getText().trim();
+
+            if (catName.isEmpty() || desc.isEmpty() || amountText.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "All fields are required.", "Validation Error", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            double parsedAmount = Double.parseDouble(amountText);
+            int loggedInUserId = this.currentUserId;
+
+            Backend.CategoryManager categoryManager = new Backend.CategoryManager();
+            int resolvedId = categoryManager.getCategoryIdByName(catName);
+
+            if (resolvedId == -1) {
+                System.out.println("Category '" + catName + "' not found. Synchronizing...");
+                categoryManager.addCategory(catName);
+                resolvedId = categoryManager.getCategoryIdByName(catName);
+            }
+
+            String currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
+            Backend.Expense expenseObj = new Backend.Expense(
+                    loggedInUserId,
+                    resolvedId,
+                    parsedAmount,
+                    desc,
+                    currentDate
+            );
+
+            expenseObj.setExpenseId(this.currentExpenseId);
+            expenseObj.setCategoryName(catName);
+
+            Backend.ExpenseManager expenseManager = new Backend.ExpenseManager();
+            boolean success;
+
+            if (this.isEditMode) {
+                success = expenseManager.updateExpense(expenseObj);
+            } else {
+                int generatedId = expenseManager.addExpenseAndGetId(expenseObj);
+                success = (generatedId != -1);
+                if (success) {
+                    this.currentExpenseId = generatedId;
+                }
+            }
+
+            if (success) {
+                this.category = catName;
+                this.description = desc;
+                this.amount = parsedAmount;
+                this.isSaved = true;
+
+                String statusMessage = this.isEditMode ? "Expense updated successfully!" : "Expense saved successfully!";
+                javax.swing.JOptionPane.showMessageDialog(this, statusMessage, "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Database update operation failed.", "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+
         } catch (NumberFormatException e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Please enter a valid number for amount.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }

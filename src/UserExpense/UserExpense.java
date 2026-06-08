@@ -1,23 +1,55 @@
-
 package UserExpense;
+
 import loginandregister.Login;
 
 public class UserExpense extends javax.swing.JFrame {
 
-    public UserExpense() {
+    private int currentUserId;
+
+    public UserExpense(String loggedInUsername, int loggedInUserId) {
         initComponents();
-    javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
-    centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-    for (int i = 0; i < expenseTable.getColumnCount(); i++) {
-        expenseTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        this.currentUserId = loggedInUserId;
+
+        if (welcomeText != null) {
+            welcomeText.setText("Welcome, " + loggedInUsername);
+        }
+
+        javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
+        for (int i = 0; i < expenseTable.getColumnCount(); i++) {
+            expenseTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        expenseTable.getColumnModel().getColumn(4).setMinWidth(0);
+        expenseTable.getColumnModel().getColumn(4).setMaxWidth(0);
+        expenseTable.getColumnModel().getColumn(4).setPreferredWidth(0);
+
+        expenseTable.setShowGrid(true);
+        expenseTable.setShowHorizontalLines(true);
+        expenseTable.setShowVerticalLines(true);
+        expenseTable.setGridColor(new java.awt.Color(200, 200, 200));
+        expenseTable.setRowHeight(30);
+
+        loadExpensesFromDatabase();
     }
-   
-    expenseTable.setShowGrid(true);                       
-    expenseTable.setShowHorizontalLines(true);             
-    expenseTable.setShowVerticalLines(true);               
-    expenseTable.setGridColor(new java.awt.Color(200, 200, 200)); 
-    expenseTable.setRowHeight(30);
-}
+
+    private void loadExpensesFromDatabase() {
+        Backend.ExpenseManager manager = new Backend.ExpenseManager();
+        java.util.List<Backend.Expense> list = manager.getExpensesByUser(this.currentUserId);
+
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) expenseTable.getModel();
+        model.setRowCount(0);
+
+        for (Backend.Expense e : list) {
+            model.addRow(new Object[]{
+                e.getCategoryName(),
+                e.getDescription(),
+                e.getAmount(),
+                e.getExpenseDate(),
+                e.getExpenseId()
+            });
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -154,29 +186,27 @@ public class UserExpense extends javax.swing.JFrame {
         expenseTable.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         expenseTable.setFont(new java.awt.Font("Tw Cen MT Condensed", 0, 36)); // NOI18N
         expenseTable.setForeground(new java.awt.Color(30, 41, 59));
-        expenseTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+       expenseTable.setModel(new javax.swing.table.DefaultTableModel(
+    new Object [][] {},
+    new String [] {
+        "Category", "Description", "Amount", "Date", "ID" 
+    }
+) {
+    Class[] types = new Class [] {
+        java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.Object.class, java.lang.Integer.class
+    };
+    boolean[] canEdit = new boolean [] {
+        false, false, false, false, false
+    };
 
-            },
-            new String [] {
-                "Category", "Description", "Amount", "Date"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.Object.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
+    public Class getColumnClass(int columnIndex) {
+        return types [columnIndex];
+    }
 
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return canEdit [columnIndex];
+    }
+});
         expenseTable.setFillsViewportHeight(true);
         expenseTable.setGridColor(new java.awt.Color(0, 0, 0));
         jScrollPane1.setViewportView(expenseTable);
@@ -191,34 +221,52 @@ public class UserExpense extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void LogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogoutActionPerformed
-       Login logout = new Login();
-        logout.pack();                         
-        logout.setLocationRelativeTo(null);     
-        logout.setVisible(true);       
+        this.setVisible(false);
         this.dispose();
+
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                Login logout = new Login();
+                logout.pack();
+                logout.setLocationRelativeTo(null);
+                logout.setVisible(true);
+            }
+        });
     }//GEN-LAST:event_LogoutActionPerformed
 
     private void welcomeTextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_welcomeTextMouseClicked
-       UsernameMenu.show(evt.getComponent(), 0, evt.getComponent().getHeight());
+        UsernameMenu.show(evt.getComponent(), 0, evt.getComponent().getHeight());
     }//GEN-LAST:event_welcomeTextMouseClicked
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-
         AddExpenseDialog dialog = new AddExpenseDialog(this, true);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
 
         if (dialog.isSaved) {
-            javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) expenseTable.getModel();
+            Backend.Expense newExpense = new Backend.Expense(
+                    this.currentUserId,
+                    dialog.category,
+                    dialog.amount,
+                    dialog.description,
+                    new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())
+            );
 
-            String currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
+            Backend.ExpenseManager manager = new Backend.ExpenseManager();
+            int databaseId = manager.addExpenseAndGetId(newExpense);
 
-            model.addRow(new Object[]{
-                dialog.category,
-                dialog.description, 
-                Double.valueOf(dialog.amount),
-                currentDate
-            });
+            if (databaseId != -1) {
+                javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) expenseTable.getModel();
+                model.addRow(new Object[]{
+                    dialog.category,
+                    dialog.description,
+                    Double.valueOf(dialog.amount),
+                    newExpense.getExpenseDate(),
+                    databaseId
+                });
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Failed to write record to the database.", "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -235,8 +283,12 @@ public class UserExpense extends javax.swing.JFrame {
         String currentDescription = model.getValueAt(selectedRow, 1).toString();
         double currentAmount = Double.parseDouble(model.getValueAt(selectedRow, 2).toString());
 
+        int currentId = Integer.parseInt(model.getValueAt(selectedRow, 4).toString());
+        int activeUserId = this.currentUserId;
+
         EditExpenseDialog dialog = new EditExpenseDialog(this, true);
-        dialog.setExpenseData(currentCategory, currentDescription, currentAmount); 
+        dialog.setExpenseData(currentId, activeUserId, currentCategory, currentDescription, currentAmount);
+
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
 
@@ -244,7 +296,6 @@ public class UserExpense extends javax.swing.JFrame {
             model.setValueAt(dialog.category, selectedRow, 0);
             model.setValueAt(dialog.description, selectedRow, 1);
             model.setValueAt(Double.valueOf(dialog.amount), selectedRow, 2);
-          
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
@@ -257,18 +308,27 @@ public class UserExpense extends javax.swing.JFrame {
             return;
         }
 
+        int currentId = Integer.parseInt(model.getValueAt(selectedRow, 4).toString());
+        int activeUserId = this.currentUserId;
+
         int confirmation = javax.swing.JOptionPane.showConfirmDialog(
                 this,
-                "Are you sure you want to delete this expense?",
+                "Are you sure you want to delete this expense permanently?",
                 "Confirm Deletion",
                 javax.swing.JOptionPane.YES_NO_OPTION,
                 javax.swing.JOptionPane.QUESTION_MESSAGE
         );
 
         if (confirmation == javax.swing.JOptionPane.YES_OPTION) {
-            model.removeRow(selectedRow);
+            Backend.ExpenseManager expenseManager = new Backend.ExpenseManager();
+            boolean success = expenseManager.deleteExpense(currentId, activeUserId);
 
-            javax.swing.JOptionPane.showMessageDialog(this, "Expense deleted.", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            if (success) {
+                model.removeRow(selectedRow);
+                javax.swing.JOptionPane.showMessageDialog(this, "Expense permanently deleted.", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Database execution error: Failed to delete record.", "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_deleteButtonActionPerformed
 
@@ -280,8 +340,29 @@ public class UserExpense extends javax.swing.JFrame {
             return;
         }
 
+        Backend.ExpenseManager manager = new Backend.ExpenseManager();
+        double grandTotal = manager.getTotalExpenses(this.currentUserId);
+        double todaysExpenses = 0.0;
+
+        String todayStr = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 2) != null && model.getValueAt(i, 3) != null) {
+                try {
+                    double amount = Double.parseDouble(model.getValueAt(i, 2).toString());
+                    String entryDate = model.getValueAt(i, 3).toString();
+                    if (entryDate.equals(todayStr)) {
+                        todaysExpenses += amount;
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Skipping invalid row layout format.");
+                }
+            }
+        }
+
         SummaryDialog summary = new SummaryDialog(this, true);
-        summary.calculateSummary(model); 
+        summary.setDisplayTotals(grandTotal, todaysExpenses);
+
         summary.setLocationRelativeTo(this);
         summary.setVisible(true);
     }//GEN-LAST:event_summaryButtonActionPerformed
@@ -316,7 +397,7 @@ public class UserExpense extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new UserExpense().setVisible(true);
+                new UserExpense("Guest", 1).setVisible(true);
             }
         });
     }

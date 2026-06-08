@@ -15,24 +15,23 @@ public class CategoryManager {
 
     
     public boolean addCategory(String categoryName) {
-        if (categoryName == null || categoryName.trim().isEmpty()) {
-            System.out.println("Category name cannot be empty.");
-            return false;
-        }
-
-        String sql = "INSERT INTO categories (category_name) VALUES (?)";
-        try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
-            pstmt.setString(1, categoryName.trim());
-            pstmt.executeUpdate();
-            System.out.println("Category added successfully: " + categoryName);
-            return true;
-        } catch (SQLException e) {
-            System.out.println("Add category failed: " + e.getMessage());
-            return false;
-        }
+    if (categoryName == null || categoryName.trim().isEmpty()) {
+        System.out.println("Category name cannot be empty.");
+        return false;
     }
 
-   
+    String sql = "INSERT OR IGNORE INTO categories (category_name) VALUES (?)";
+    try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
+        pstmt.setString(1, categoryName.trim());
+        pstmt.executeUpdate();
+        System.out.println("Category sync completed for: " + categoryName);
+        return true; 
+    } catch (SQLException e) {
+        System.out.println("Add category failed: " + e.getMessage());
+        return false;
+    }
+}
+
     public List<Category> getAllCategories() {
         List<Category> categories = new ArrayList<>();
         String sql = "SELECT category_id, category_name FROM categories ORDER BY category_name ASC";

@@ -259,7 +259,7 @@ public class Login extends javax.swing.JFrame {
         if (loginResult >= 0) {
             javax.swing.JOptionPane.showMessageDialog(this, "Login successful!", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
 
-            UserExpense dashboard = new UserExpense();
+            UserExpense dashboard = new UserExpense(username, loginResult);
 
             dashboard.pack();
             dashboard.setLocationRelativeTo(null);
@@ -295,7 +295,7 @@ public class Login extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 Login frame = new Login();
-                frame.setLocationRelativeTo(null); 
+                frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
             }
         });

@@ -1,4 +1,3 @@
-
 package UserExpense;
 
 public class SummaryDialog extends javax.swing.JDialog {
@@ -7,32 +6,39 @@ public class SummaryDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
     }
-    
+
     public void calculateSummary(javax.swing.table.DefaultTableModel model) {
-   double totalExpenses = 0.0;
-    double todaysExpenses = 0.0;
-     String pesoSign = "Php";
-    
-    String todayStr = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
-    
-    for (int i = 0; i < model.getRowCount(); i++) {
-        if (model.getValueAt(i, 2) == null || model.getValueAt(i, 3) == null || 
-            model.getValueAt(i, 2).toString().trim().isEmpty()) {
-            continue; 
+        double totalExpenses = 0.0;
+        double todaysExpenses = 0.0;
+        String pesoSign = "Php ";
+
+        String todayStr = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 2) == null || model.getValueAt(i, 3) == null
+                    || model.getValueAt(i, 2).toString().trim().isEmpty()) {
+                continue;
+            }
+
+            try {
+                double amount = Double.parseDouble(model.getValueAt(i, 2).toString());
+                String entryDate = model.getValueAt(i, 3).toString();
+
+                totalExpenses += amount;
+
+                if (entryDate.equals(todayStr)) {
+                    todaysExpenses += amount;
+                }
+            } catch (NumberFormatException nfe) {
+            }
         }
-        
-        double amount = Double.parseDouble(model.getValueAt(i, 2).toString());
-        String entryDate = model.getValueAt(i, 3).toString();
-        
-        totalExpenses += amount;
-        
-        if (entryDate.equals(todayStr)) {
-            todaysExpenses += amount;
-        }
-    
-    totalNumberLabel.setText(String.format(pesoSign + "%.2f", totalExpenses));
-    todayTotalNumberLabel.setText(String.format(pesoSign +"%.2f", todaysExpenses));
-}
+
+    }
+
+    public void setDisplayTotals(double grandTotal, double todaysTotal) {
+        String pesoSign = "Php ";
+        this.totalNumberLabel.setText(String.format("%s%.2f", pesoSign, grandTotal));
+        this.todayTotalNumberLabel.setText(String.format("%s%.2f", pesoSign, todaysTotal));
     }
 
     /**
@@ -136,7 +142,7 @@ public class SummaryDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-     this.dispose();
+        this.dispose();
     }//GEN-LAST:event_closeButtonActionPerformed
 
     /**
