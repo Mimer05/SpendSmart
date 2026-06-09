@@ -202,7 +202,7 @@ public class EditExpenseDialog extends javax.swing.JDialog {
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         try {
-            String catName = categoryField.getText().trim();
+           String catName = categoryField.getText().trim().toLowerCase();
             String desc = descriptionField.getText().trim();
             String amountText = amountField.getText().trim();
 
