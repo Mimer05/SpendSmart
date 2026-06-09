@@ -8,9 +8,14 @@ import java.util.Base64;
 
 public class UserManager {
 
-    
     private InputValidator validator = new InputValidator();
 
+    public static final int ERR_EMPTY_FIELD = -1;
+    public static final int ERR_INVALID_USERNAME = -2;
+    public static final int ERR_INVALID_FORMAT = -3;
+    public static final int ERR_USER_NOT_FOUND = -4;
+    public static final int ERR_WRONG_PASSWORD = -5;
+    public static final int ERR_DATABASE = -6;
     
     public int registerUser(String username, String password, String confirmPass) {
         System.out.println("Checking username: " + username + "....");
@@ -18,13 +23,13 @@ public class UserManager {
         int userCheck = validator.validateUsername(username);
         if (userCheck != 0) {
             System.out.println("There's an error in username: Code " + userCheck);
-            return userCheck;
+            return -userCheck;
         }
 
         int passCheck = validator.validatePassword(password, confirmPass);
         if (passCheck != 0) {
             System.out.println("There's an error in password: Code " + passCheck);
-            return passCheck;
+            return -passCheck;
         }
 
         byte[] userSaltBytes  = PasswordSecurity.generateSalt();
@@ -33,7 +38,7 @@ public class UserManager {
 
         String sql = "INSERT INTO users (username, password_hash, password_salt) VALUES (?, ?, ?)";
 
-        Connection conn = DatabaseConfig.connection;
+        Connection conn = DatabaseConfig.getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
             pstmt.setString(2, passwordHash);
@@ -66,14 +71,14 @@ public class UserManager {
         
         String sql = "SELECT user_id, password_hash, password_salt FROM users WHERE username = ?";
 
-        Connection conn = DatabaseConfig.connection;
+        Connection conn = DatabaseConfig.getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (!rs.next()) {
                     System.out.println("Login failed: user not found.");
-                    return -6;
+                    return ERR_USER_NOT_FOUND;
                 }
 
                 int    userId        = rs.getInt("user_id");
@@ -89,18 +94,18 @@ public class UserManager {
                     return userId;  
                 } else {
                     System.out.println("Login failed: incorrect password.");
-                    return -5;
+                    return ERR_WRONG_PASSWORD;
                 }
             }
         } catch (SQLException e) {
             System.out.println("Login error: " + e.getMessage());
-            return -7;
+            return ERR_DATABASE;
         }
     }
 
     public String getUsernameById(int userId) {
-        String sql = "SELECT username FROM users WHERE user_id";
-        try (PreparedStatement pstmt = DatabaseConfig.connection.prepareStatement(sql)) {
+        String sql = "SELECT username FROM users WHERE user_id = ?";
+        try (PreparedStatement pstmt = DatabaseConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {

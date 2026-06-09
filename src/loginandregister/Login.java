@@ -256,7 +256,7 @@ public class Login extends javax.swing.JFrame {
 
         int loginResult = userManager.loginUser(username, password);
 
-        if (loginResult >= 0) {
+        if (loginResult > 0) {
             javax.swing.JOptionPane.showMessageDialog(this, "Login successful!", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
 
             UserExpense dashboard = new UserExpense(username, loginResult);
@@ -268,21 +268,20 @@ public class Login extends javax.swing.JFrame {
         } else {
             String errorMessage;
             switch (loginResult) {
-                case 1:
+                case -1:
                     errorMessage = "Fields cannot be empty.";
                     break;
-                case 2:
-                    errorMessage = "Username structure is invalid.";
+                case -2:
+                case -3: 
+                    errorMessage = "Username format is invalid.";
                     break;
-                case 3:
-                    errorMessage = "Invalid alphanumeric formatting entries.";
-                    break;
-                case -1:
+                case Backend.UserManager.ERR_USER_NOT_FOUND:
                     errorMessage = "Username not found in records.";
                     break;
-                case -2:
+                case Backend.UserManager.ERR_WRONG_PASSWORD:
                     errorMessage = "Incorrect password credentials supplied.";
                     break;
+                case Backend.UserManager.ERR_DATABASE:
                 default:
                     errorMessage = "Database processing validation failure encountered.";
                     break;

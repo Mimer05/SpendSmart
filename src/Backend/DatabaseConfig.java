@@ -7,10 +7,25 @@ import java.sql.Statement;
 
 public class DatabaseConfig {
     private static final String URL = "jdbc:sqlite:spendsmart.db";
-    public static Connection connection = null;
+    private static Connection connection = null;
+    
+    public static Connection getConnection() {
+        if(connection == null || isClosed()) {
+            initialize();
+        }
+        return connection;
+    }
+    
+    private static boolean isClosed() {
+        try {
+            return connection == null || connection.isClosed();
+        } catch(SQLException e) {
+            return true;
+        }
+    }
 
     public static void initialize() {
-        if (connection != null) {
+        if (connection != null && !isClosed()) {
             return;
         }
 
@@ -18,6 +33,11 @@ public class DatabaseConfig {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection(URL);
             System.out.println("SQLite database initialized successfully.");
+            
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute("PRAGMA foreign_keys = ON;");
+                stmt.execute("PRAGMA journal_mode = WAL;");
+            }
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> closeConnection()));
 
@@ -74,11 +94,14 @@ public class DatabaseConfig {
                 + "FOREIGN KEY (user_id) REFERENCES users(user_id),"
                 + "FOREIGN KEY (category_id) REFERENCES categories(category_id)"
                 + ");";
+        
+        String createIndex = "CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);";
 
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(createUsersTable);
             stmt.execute(createCategoriesTable);
             stmt.execute(createTransactionsTable);
+            stmt.execute(createIndex);
             System.out.println("Database schemas verified and ready.");
         } catch (SQLException e) {
             System.out.println("Table creation failed: " + e.getMessage());

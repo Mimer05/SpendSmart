@@ -10,6 +10,7 @@ public class ExpenseValidator {
     private static final int MAX_DESCRIPTION_LENGTH = 100;
     private static final int MAX_DATETIME_LENGTH = 19;
     private static final String DATE_FORMAT_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
+    private static final String DATETIME_FORMAT_PATTERN = "^\\\\d{4}-\\\\d{2}-\\\\d{2} \\\\d{2}:\\\\d{2}:\\\\d{2}$";
 
     public static boolean validate(Expense expense) {
         if (expense == null) return false;
@@ -48,9 +49,14 @@ public class ExpenseValidator {
         }
 
         return !description.contains("'")
+                && !description.contains("\"")
                 && !description.contains("--")
                 && !description.contains(";")
-                && !description.contains("`");
+                && !description.contains("`")
+                && !description.contains("/*")
+                && !description.contains("*/")
+                && !description.contains("<")
+                && !description.contains(">");
     }
 
     public static boolean isExpenseDateValid(String date) {
@@ -59,10 +65,8 @@ public class ExpenseValidator {
         }
 
         try {
-            LocalDate parsed = LocalDate.parse(date);
-            int month = parsed.getMonthValue();
-            int day = parsed.getDayOfMonth();
-            return (month >= 1 && month <= 12) && (day >= 1 && day <= 31);
+            LocalDate.parse(date);
+            return true;
         } catch (DateTimeParseException e) {
             return false;
         }
@@ -71,7 +75,7 @@ public class ExpenseValidator {
     public static boolean isCreatedAtValid(String dateTime) {
         return dateTime != null
                 && !dateTime.trim().isEmpty()
-                && dateTime.length() <= MAX_DATETIME_LENGTH;
+                && dateTime.matches(DATETIME_FORMAT_PATTERN);
     }
 
     public static String getErrorMessage(Expense expense) {

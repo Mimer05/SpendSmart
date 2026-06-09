@@ -15,11 +15,14 @@ public class EditExpenseDialog extends javax.swing.JDialog {
     public String description = "";
     public double amount = 0.0;
     public boolean isSaved = false;
+    private String originalExpenseDate = null;
 
     public void setEditData(Backend.Expense expense) {
         this.currentExpenseId = expense.getExpenseId();
         this.currentUserId = expense.getUserId();
         this.isEditMode = true;
+        
+        this.originalExpenseDate = expense.getExpenseDate();
 
         categoryField.setText(expense.getCategoryName());
         descriptionField.setText(expense.getDescription());
@@ -214,22 +217,16 @@ public class EditExpenseDialog extends javax.swing.JDialog {
             double parsedAmount = Double.parseDouble(amountText);
             int loggedInUserId = this.currentUserId;
 
-            Backend.CategoryManager categoryManager = new Backend.CategoryManager();
-            int resolvedId = categoryManager.getCategoryIdByName(catName);
-
-            if (resolvedId == -1) {
-                System.out.println("Category '" + catName + "' not found. Synchronizing...");
-                categoryManager.addCategory(catName);
-                resolvedId = categoryManager.getCategoryIdByName(catName);
-            }
-
-            String currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
+            String finalDate = (this.isEditMode && this.originalExpenseDate != null)
+                    ? this.originalExpenseDate
+                    : new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
+            
             Backend.Expense expenseObj = new Backend.Expense(
                     loggedInUserId,
-                    resolvedId,
+                    -1,
                     parsedAmount,
                     desc,
-                    currentDate
+                    finalDate
             );
 
             expenseObj.setExpenseId(this.currentExpenseId);
