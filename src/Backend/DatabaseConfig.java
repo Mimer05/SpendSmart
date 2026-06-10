@@ -30,7 +30,7 @@ public class DatabaseConfig {
         }
 
         try {
-            Class.forName("org.sqlite.JDBC");
+            Class.forName("org.sqlite.JDBC");                      
             connection = DriverManager.getConnection(URL);
             System.out.println("SQLite database initialized successfully.");
             
@@ -108,4 +108,3 @@ public class DatabaseConfig {
         }
     }
 }
-
