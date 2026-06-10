@@ -1,6 +1,5 @@
 build/
 nbproject/private/
 dist/
-*.db
 *.class
 firebase-config.json
