@@ -184,7 +184,9 @@ public class AddExpenseDialog extends javax.swing.JDialog {
             }
 
             double parsedAmount = Double.parseDouble(amountText);
-
+            String formattedAmountText = String.format("%.2f", parsedAmount);
+            amountField.setText(formattedAmountText);
+            
             this.category = catName;
             this.description = desc;
             this.amount = parsedAmount;

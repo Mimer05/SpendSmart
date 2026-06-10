@@ -162,7 +162,8 @@ public class ExpenseManager {
         List<Expense> expenses = new ArrayList<>();
 
         String sql = "SELECT t.expense_id, t.user_id, t.category_id, c.category_name, "
-                + "t.amount, t.description, t.expense_date, t.created_at "
+                + "t.amount, PRINTF('%.2f', t.amount) AS formatted_amount,"
+                + "t.description, t.expense_date, t.created_at "
                 + "FROM transactions t "
                 + "JOIN categories c ON t.category_id = c.category_id "
                 + "WHERE t.user_id = ? "
@@ -172,11 +173,13 @@ public class ExpenseManager {
             pstmt.setInt(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
+                    String amountStr = rs.getString("formatted_amount");
+                    double amount = Double.parseDouble(amountStr);
                     Expense e = new Expense(
                             rs.getInt("expense_id"),
                             rs.getInt("user_id"),
                             rs.getInt("category_id"),
-                            rs.getDouble("amount"),
+                            amount,
                             rs.getString("description"),
                             rs.getString("expense_date"),
                             rs.getString("created_at")

@@ -21,12 +21,12 @@ public class EditExpenseDialog extends javax.swing.JDialog {
         this.currentExpenseId = expense.getExpenseId();
         this.currentUserId = expense.getUserId();
         this.isEditMode = true;
-        
+
         this.originalExpenseDate = expense.getExpenseDate();
 
         categoryField.setText(expense.getCategoryName());
         descriptionField.setText(expense.getDescription());
-        amountField.setText(String.valueOf(expense.getAmount()));
+        amountField.setText(String.format("%.2f", expense.getAmount()));;
     }
 
     public void setExpenseData(int expenseId, int userId, String category, String description, double amount) {
@@ -36,7 +36,7 @@ public class EditExpenseDialog extends javax.swing.JDialog {
 
         categoryField.setText(category);
         descriptionField.setText(description);
-        amountField.setText(String.valueOf(amount));
+        amountField.setText(String.format("%.2f", amount));;
     }
 
     /**
@@ -205,7 +205,7 @@ public class EditExpenseDialog extends javax.swing.JDialog {
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         try {
-           String catName = categoryField.getText().trim().toLowerCase();
+            String catName = categoryField.getText().trim().toLowerCase();
             String desc = descriptionField.getText().trim();
             String amountText = amountField.getText().trim();
 
@@ -213,14 +213,16 @@ public class EditExpenseDialog extends javax.swing.JDialog {
                 javax.swing.JOptionPane.showMessageDialog(this, "All fields are required.", "Validation Error", javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
-
             double parsedAmount = Double.parseDouble(amountText);
+
+            String formattedAmountText = String.format("%.2f", parsedAmount);
+            amountField.setText(formattedAmountText);
             int loggedInUserId = this.currentUserId;
 
             String finalDate = (this.isEditMode && this.originalExpenseDate != null)
                     ? this.originalExpenseDate
                     : new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
-            
+
             Backend.Expense expenseObj = new Backend.Expense(
                     loggedInUserId,
                     -1,

@@ -44,7 +44,7 @@ public class UserExpense extends javax.swing.JFrame {
             model.addRow(new Object[]{
                 e.getCategoryName(),
                 e.getDescription(),
-                e.getAmount(),
+                String.format("%.2f", e.getAmount()),
                 e.getExpenseDate(),
                 e.getExpenseId()
             });
@@ -260,7 +260,7 @@ public class UserExpense extends javax.swing.JFrame {
                 model.addRow(new Object[]{
                     dialog.category,
                     dialog.description,
-                    Double.valueOf(dialog.amount),
+                    String.format("%.2f", dialog.amount),
                     newExpense.getExpenseDate(),
                     databaseId
                 });
@@ -295,7 +295,7 @@ public class UserExpense extends javax.swing.JFrame {
         if (dialog.isSaved) {
             model.setValueAt(dialog.category, selectedRow, 0);
             model.setValueAt(dialog.description, selectedRow, 1);
-            model.setValueAt(Double.valueOf(dialog.amount), selectedRow, 2);
+            model.setValueAt(String.format("%.2f", dialog.amount), selectedRow, 2);
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
